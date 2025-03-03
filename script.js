@@ -34,3 +34,17 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 });
+const axios = require('axios');
+const token = '7666556234:AAF4wof7ukV_V5Ynkvta683XwpJTajpsiMQ';
+const url = 'https://jahmora.github.io/PixPop/';
+
+axios.post(`https://api.telegram.org/bot${token}/setWebhook`, {
+    url: url
+})
+.then(response => {
+    console.log('Webhook set:', response.data);
+})
+.catch(error => {
+    console.error('Error setting webhook:', error);
+});
+
