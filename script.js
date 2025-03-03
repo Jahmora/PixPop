@@ -1,6 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const images = [];
-    for (let i = 1; i <= 10; i++) {
+    // Mettez le nombre maximum d'images que vous avez
+    for (let i = 1; i <= 11; i++) {
         images.push({ src: `image${i}.png`, alt: `Image ${i}` });
     }
 
