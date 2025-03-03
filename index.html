@@ -1,23 +1,44 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <!-- Métadonnées -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PixPop</title>
+    <title>PixPop - Galerie d'Images</title>
+    
+    <!-- Feuille de style CSS -->
     <link rel="stylesheet" href="style.css">
+    
+    <!-- Icônes Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-0aHelEv/2U028eBV0ubNzQzjoO3nVBg3IKZ4XZBvGXxILh8NI6vqCcTBkk8xsUQ+" crossorigin="anonymous">
+    
+    <!-- SDK Telegram Web Apps -->
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
 </head>
 <body>
-    <h1>PixPop </h1>
+    <!-- Bouton de basculement du thème -->
+    <button id="theme-toggle">🌙 Mode Sombre</button>
+
+    <!-- En-tête -->
+    <h1>PixPop - Galerie d'Images</h1>
+
+    <!-- Conteneur de la galerie -->
     <div class="gallery" id="gallery"></div>
+
+    <!-- Fenêtre modale -->
     <div id="modal" class="modal">
         <span class="close">&times;</span>
         <img class="modal-content" id="modal-img">
+        <button id="share-button"><i class="fas fa-share-alt"></i> Partager</button>
     </div>
+
+    <!-- Script JavaScript -->
     <script src="script.js"></script>
+
+    <!-- Initialisation du WebApp Telegram -->
     <script>
-        // Initialisation du WebApp Telegram
         Telegram.WebApp.ready();
     </script>
 </body>
 </html>
+
