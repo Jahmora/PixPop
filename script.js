@@ -89,38 +89,39 @@ document.addEventListener('DOMContentLoaded', function() {
     shareButton.style.display = 'block';
 
     if (isTelegramWebView()) {
-        shareButton.innerHTML = '<i class="fas fa-share-alt"></i> Partager sur Telegram';
+        shareButton.innerHTML = '<i class="fas fa-share-alt"></i> Partager le bot';
     } else if (navigator.share) {
-        shareButton.innerHTML = '<i class="fas fa-share-alt"></i> Partager';
+        shareButton.innerHTML = '<i class="fas fa-share-alt"></i> Partager le bot';
     } else if (navigator.clipboard) {
-        shareButton.innerHTML = '<i class="fas fa-copy"></i> Copier le lien';
+        shareButton.innerHTML = '<i class="fas fa-copy"></i> Copier le lien du bot';
     } else {
         shareButton.style.display = 'none'; // Cache le bouton si aucune option n'est disponible
     }
 
     // Fonctionnalité du bouton "Partager"
     shareButton.addEventListener('click', function() {
-        const imageUrl = modalImg.src;
-        const shareText = 'Découvrez cette image sur PixPop !';
+        const botUsername = 'PixPopBot'; // Remplacez par le nom exact de votre bot
+        const botLink = `https://t.me/${botUsername}`;
+        const shareText = 'Découvrez PixPop, une incroyable galerie d\'images sur Telegram !';
 
         if (isTelegramWebView()) {
-            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(imageUrl)}&text=${encodeURIComponent(shareText)}`;
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botLink)}&text=${encodeURIComponent(shareText)}`;
             window.open(shareUrl, '_blank');
         } else if (navigator.share) {
             navigator.share({
                 title: 'PixPop',
                 text: shareText,
-                url: imageUrl,
+                url: botLink,
             })
             .then(() => console.log('Partage réussi'))
             .catch((error) => console.log('Erreur lors du partage', error));
         } else if (navigator.clipboard) {
-            navigator.clipboard.writeText(imageUrl)
+            navigator.clipboard.writeText(botLink)
             .then(() => {
-                alert('Le lien de l\'image a été copié dans le presse-papiers.');
+                alert('Le lien du bot a été copié dans le presse-papiers.');
             })
             .catch((error) => {
-                alert('Impossible de copier le lien.');
+                alert('Impossible de copier le lien du bot.');
                 console.error('Erreur lors de la copie du lien', error);
             });
         } else {
@@ -135,4 +136,3 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 });
-
