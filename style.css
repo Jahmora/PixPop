@@ -149,10 +149,9 @@ body.dark-theme .gallery img:hover {
 
 /* Bouton Partager */
 #share-button {
-    position: absolute;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
+    display: block;
+    position: relative;
+    margin: 20px auto 0 auto;
     padding: 10px 20px;
     background-color: #007BFF;
     color: #fff;
@@ -161,6 +160,7 @@ body.dark-theme .gallery img:hover {
     cursor: pointer;
     transition: background-color 0.3s ease;
     font-size: 1em;
+    z-index: 11;
 }
 
 #share-button:hover {
