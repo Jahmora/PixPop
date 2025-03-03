@@ -53,6 +53,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function openModal(src, index) {
         modalImg.src = src;
         modal.classList.add('show');
+        modalImg.classList.remove('zoomed');
         currentImageIndex = index;
     }
 
@@ -88,12 +89,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Afficher le bouton "Partager" et adapter son texte
     shareButton.style.display = 'block';
 
-    if (isTelegramWebView()) {
-        shareButton.innerHTML = '<i class="fas fa-share-alt"></i> Partager le bot';
-    } else if (navigator.share) {
-        shareButton.innerHTML = '<i class="fas fa-share-alt"></i> Partager le bot';
+    if (isTelegramWebView() || navigator.share) {
+        shareButton.innerHTML = '<i class="fas fa-share-alt"></i> Partager l\'image';
     } else if (navigator.clipboard) {
-        shareButton.innerHTML = '<i class="fas fa-copy"></i> Copier le lien du bot';
+        shareButton.innerHTML = '<i class="fas fa-copy"></i> Copier les liens';
     } else {
         shareButton.style.display = 'none'; // Cache le bouton si aucune option n'est disponible
     }
@@ -102,27 +101,32 @@ document.addEventListener('DOMContentLoaded', function() {
     shareButton.addEventListener('click', function() {
         const botUsername = 'PixPopBot'; // Remplacez par le nom exact de votre bot
         const botLink = `https://t.me/${botUsername}`;
-        const shareText = 'Découvrez PixPop, une incroyable galerie d\'images sur Telegram !';
+        const imageUrl = modalImg.src; // URL de l'image cliquée
+        const shareText = `Découvrez cette image sur PixPop !`;
 
         if (isTelegramWebView()) {
-            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(botLink)}&text=${encodeURIComponent(shareText)}`;
+            // Partage via l'interface de Telegram avec l'image
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(imageUrl)}&text=${encodeURIComponent(shareText)}%0ARejoignez-nous sur ${botLink}`;
             window.open(shareUrl, '_blank');
         } else if (navigator.share) {
+            // Partage via l'API Web Share avec l'image
             navigator.share({
                 title: 'PixPop',
-                text: shareText,
-                url: botLink,
+                text: `${shareText}\nRejoignez-nous sur ${botLink}`,
+                url: imageUrl,
             })
             .then(() => console.log('Partage réussi'))
             .catch((error) => console.log('Erreur lors du partage', error));
         } else if (navigator.clipboard) {
-            navigator.clipboard.writeText(botLink)
+            // Copier le lien de l'image et du bot dans le presse-papiers
+            const textToCopy = `${shareText}\n${imageUrl}\nRejoignez-nous sur ${botLink}`;
+            navigator.clipboard.writeText(textToCopy)
             .then(() => {
-                alert('Le lien du bot a été copié dans le presse-papiers.');
+                alert('Les liens de l\'image et du bot ont été copiés dans le presse-papiers.');
             })
             .catch((error) => {
-                alert('Impossible de copier le lien du bot.');
-                console.error('Erreur lors de la copie du lien', error);
+                alert('Impossible de copier les liens.');
+                console.error('Erreur lors de la copie des liens', error);
             });
         } else {
             alert('Le partage n\'est pas supporté sur ce navigateur.');
