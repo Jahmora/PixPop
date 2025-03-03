@@ -1,3 +1,9 @@
+// Fonction pour détecter si l'application est ouverte dans le navigateur Telegram
+function isTelegramWebView() {
+    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+    return /Telegram/i.test(userAgent);
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Variables globales
     const gallery = document.getElementById('gallery');
@@ -10,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Liste des images
     const images = [];
-    const totalImages = 11; // Mettez le nombre total d'images que vous avez
+    const totalImages = 11; // Remplacez par le nombre total de vos images
 
     for (let i = 1; i <= totalImages; i++) {
         images.push({ src: `image${i}.png`, alt: `Image ${i}` });
@@ -36,7 +42,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // Gestion des erreurs de chargement
         imgElement.onerror = function() {
-            this.src = 'image-placeholder.png'; // Une image de remplacement si l'image ne charge pas
+            this.src = 'image-placeholder.png'; // Image de remplacement si l'image ne se charge pas
             this.alt = 'Image non disponible';
         };
 
@@ -62,7 +68,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (event.target == modal) {
             closeModal();
         }
-    }
+    };
 
     // Zoom sur l'image
     modalImg.addEventListener('click', function() {
@@ -79,20 +85,45 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
-    // Bouton Partager
-    shareButton.addEventListener('click', function() {
-        const shareData = {
-            title: 'Découvrez cette image sur PixPop !',
-            text: 'Une superbe image que je souhaite partager avec vous.',
-            url: window.location.href
-        };
+    // Afficher le bouton "Partager" et adapter son texte
+    shareButton.style.display = 'block';
 
-        if (navigator.share) {
-            navigator.share(shareData)
+    if (isTelegramWebView()) {
+        shareButton.innerHTML = '<i class="fas fa-share-alt"></i> Partager sur Telegram';
+    } else if (navigator.share) {
+        shareButton.innerHTML = '<i class="fas fa-share-alt"></i> Partager';
+    } else if (navigator.clipboard) {
+        shareButton.innerHTML = '<i class="fas fa-copy"></i> Copier le lien';
+    } else {
+        shareButton.style.display = 'none'; // Cache le bouton si aucune option n'est disponible
+    }
+
+    // Fonctionnalité du bouton "Partager"
+    shareButton.addEventListener('click', function() {
+        const imageUrl = modalImg.src;
+        const shareText = 'Découvrez cette image sur PixPop !';
+
+        if (isTelegramWebView()) {
+            const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(imageUrl)}&text=${encodeURIComponent(shareText)}`;
+            window.open(shareUrl, '_blank');
+        } else if (navigator.share) {
+            navigator.share({
+                title: 'PixPop',
+                text: shareText,
+                url: imageUrl,
+            })
             .then(() => console.log('Partage réussi'))
             .catch((error) => console.log('Erreur lors du partage', error));
+        } else if (navigator.clipboard) {
+            navigator.clipboard.writeText(imageUrl)
+            .then(() => {
+                alert('Le lien de l\'image a été copié dans le presse-papiers.');
+            })
+            .catch((error) => {
+                alert('Impossible de copier le lien.');
+                console.error('Erreur lors de la copie du lien', error);
+            });
         } else {
-            // Alternative pour les navigateurs qui ne supportent pas l'API Web Share
             alert('Le partage n\'est pas supporté sur ce navigateur.');
         }
     });
