@@ -4,6 +4,15 @@ function isTelegramWebView() {
   return /Telegram/i.test(userAgent);
 }
 
+// Fonction de mélange (shuffle) du tableau
+function shuffleArray(array) {
+  for (let i = array.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [array[i], array[j]] = [array[j], array[i]]; // échange d'éléments
+  }
+  return array;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
   // Détection de la langue de l'utilisateur
   function detectUserLanguage() {
@@ -11,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return language.startsWith('fr') ? 'fr' : 'en';
   }
 
-  // Objets de traductions pour les éléments statiques et libellés
+  // Traductions pour les éléments statiques et les messages
   const translations = {
     en: {
       themeToggleDark: 'Dark Mode',
@@ -60,17 +69,20 @@ document.addEventListener('DOMContentLoaded', function() {
   const totalImages = 51;
   const images = [];
 
-  // Charger les informations des images depuis le localStorage ou les initialiser.
+  // Charger les informations des images depuis le localStorage ou les initialiser
   for (let i = 1; i <= totalImages; i++) {
     const imageKey = `image${i}`;
     const storedImage = localStorage.getItem(imageKey);
-    const imageData = storedImage
-      ? JSON.parse(storedImage)
+    const imageData = storedImage 
+      ? JSON.parse(storedImage) 
       : { src: `image${i}.png`, alt: `Image ${i}`, views: 0, shares: 0 };
     images.push(imageData);
   }
 
-  // Fonction de sauvegarde des informations des images dans le localStorage.
+  // Mélanger l'ordre des images de manière aléatoire
+  shuffleArray(images);
+
+  // Fonction de sauvegarde des données dans le localStorage
   function saveImageData() {
     images.forEach((image, index) => {
       const imageKey = `image${index + 1}`;
@@ -78,27 +90,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Création de la galerie d'images.
+  // Création de la galerie en parcourant le tableau des images (mélangé)
   images.forEach((image, index) => {
     const imgElement = document.createElement('img');
     imgElement.src = image.src;
     imgElement.alt = image.alt;
-    // Activer le lazy loading
+    // Activation du lazy loading
     imgElement.setAttribute('loading', 'lazy');
 
-    // Lors du clic, ouvrir la modale et incrémenter le compteur de vues.
+    // Au clic, ouvrir la modale et incrémenter le compteur de vues
     imgElement.addEventListener('click', function() {
       openModal(this.src, index);
       incrementViewCount(index);
 
-      // Précharger l'image suivante si disponible
+      // Précharger l'image suivante si elle existe
       if (index + 1 < images.length) {
         const nextImg = new Image();
         nextImg.src = images[index + 1].src;
       }
     });
 
-    // Gestion des erreurs (si l'image ne se charge pas)
+    // Gestion des erreurs de chargement
     imgElement.onerror = function() {
       this.src = 'image-placeholder.png';
       this.alt = 'Image non disponible';
@@ -107,7 +119,7 @@ document.addEventListener('DOMContentLoaded', function() {
     gallery.appendChild(imgElement);
   });
 
-  // Ouvrir la modale avec l'image sélectionnée
+  // Fonction pour ouvrir la modale
   function openModal(src, index) {
     modalImg.src = src;
     modal.classList.add('show');
@@ -117,13 +129,13 @@ document.addEventListener('DOMContentLoaded', function() {
     updateShareCount(index);
   }
 
-  // Fermer la modale
+  // Fonction pour fermer la modale
   function closeModal() {
     modal.classList.remove('show');
     modalImg.classList.remove('zoomed');
   }
 
-  // Fermer la modale lorsque l'utilisateur clique sur la croix ou en dehors de la modale
+  // Fermer la modale lors du clic sur la croix ou en dehors du contenu modal
   span.onclick = closeModal;
   window.onclick = function(event) {
     if (event.target === modal) {
@@ -131,12 +143,12 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   };
 
-  // Gérer le zoom sur l'image dans la modale
+  // Permettre le zoom sur l'image dans la modale
   modalImg.addEventListener('click', function() {
     modalImg.classList.toggle('zoomed');
   });
 
-  // Basculer le thème entre clair et sombre
+  // Basculer le thème (affiche Mode Clair lorsque le thème sombre est actif, et inversement)
   themeToggle.addEventListener('click', function() {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
@@ -146,14 +158,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Fonctionnalité du bouton "Partager"
+  // Gestion du partage
   shareButton.addEventListener('click', function() {
     const botUsername = 'PixPopBot'; // Remplacez par le nom exact de votre bot
     const botLink = `https://t.me/${botUsername}`;
     const imageUrl = modalImg.src;
     const shareText = `Découvrez cette image sur PixPop !`;
 
-    // Enregistrez le partage pour l'image en cours
+    // Enregistrer le partage pour l'image actuelle
     enregistrerPartage(currentImageIndex);
 
     if (isTelegramWebView()) {
@@ -182,14 +194,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Enregistrer un partage dans les données de l'image
+  // Enregistrer un partage
   function enregistrerPartage(index) {
     images[index].shares++;
     updateShareCount(index);
     saveImageData();
   }
 
-  // Incrémenter le compteur de vues pour l'image
+  // Incrémenter le compteur de vues
   function incrementViewCount(index) {
     images[index].views++;
     saveImageData();
@@ -205,7 +217,7 @@ document.addEventListener('DOMContentLoaded', function() {
     shareCount.textContent = translations[userLanguage].shareCount + images[index].shares;
   }
 
-  // Enregistrement du Service Worker pour la mise en cache dynamique
+  // Enregistrement du Service Worker pour la mise en cache des ressources
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('/service-worker.js')
@@ -218,4 +230,3 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 });
-
