@@ -1,210 +1,236 @@
-/* Styles généraux */
+/*==========================*/
+/*  Variables CSS           */
+/*==========================*/
+:root {
+  /* Palette de couleurs */
+  --primary-color: #007BFF;
+  --primary-hover: #0056b3;
+  --dark-bg: #121212;
+  --light-bg: #f0f0f0;
+  --light-text: #333;
+  --dark-text: #f0f0f0;
+
+  /* Espacements & Bordures */
+  --padding-base: 20px;
+  --border-radius: 8px;
+
+  /* Ombres */
+  --shadow-light: 0 2px 5px rgba(0, 0, 0, 0.1);
+  --shadow-hover: 0 4px 10px rgba(0, 0, 0, 0.15);
+
+  /* Transitions */
+  --transition-fast: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+/*==========================*/
+/*  Styles Généraux         */
+/*==========================*/
 body {
-    font-family: Arial, sans-serif;
-    background-color: #f0f0f0;
-    color: #333;
-    margin: 0;
-    padding: 20px;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: Arial, sans-serif;
+  background-color: var(--light-bg);
+  color: var(--light-text);
+  margin: 0;
+  padding: var(--padding-base);
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 h1 {
-    text-align: center;
-    margin-bottom: 20px;
+  text-align: center;
+  margin-bottom: var(--padding-base);
 }
 
 /* Thème sombre */
 body.dark-theme {
-    background-color: #121212;
-    color: #f0f0f0;
+  background-color: var(--dark-bg);
+  color: var(--dark-text);
 }
 
-/* Bouton de basculement du thème */
+/*==========================*/
+/*  Bouton de basculement   */
+/*==========================*/
 #theme-toggle {
-    position: fixed;
-    top: 20px;
-    right: 20px;
-    padding: 10px;
-    background-color: #fff;
-    border: none;
-    cursor: pointer;
-    border-radius: 50%;
-    font-size: 1.2em;
-    z-index: 1000;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  position: fixed;
+  top: var(--padding-base);
+  right: var(--padding-base);
+  padding: 10px;
+  background-color: #fff;
+  border: none;
+  cursor: pointer;
+  border-radius: 50%;
+  font-size: 1.2em;
+  z-index: 1000;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 body.dark-theme #theme-toggle {
-    background-color: #333;
-    color: #f0f0f0;
+  background-color: #333;
+  color: var(--dark-text);
 }
 
-/* Galerie */
+/*==========================*/
+/*  Galerie avec CSS Grid   */
+/*==========================*/
 .gallery {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: var(--padding-base);
+  padding: var(--padding-base);
 }
 
 .gallery img {
-    flex: 1 1 calc(25% - 20px);
-    margin: 10px;
-    max-width: calc(25% - 20px);
-    border: 2px solid #ccc;
-    transition: transform 0.3s ease, border-color 0.3s ease;
-    cursor: pointer;
+  width: 100%;
+  border-radius: var(--border-radius);
+  box-shadow: var(--shadow-light);
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast);
+  cursor: pointer;
+  border: none;
 }
 
 .gallery img:hover {
-    transform: scale(1.05);
-    border-color: #333;
+  transform: scale(1.05);
+  box-shadow: var(--shadow-hover);
 }
 
-/* Thème sombre pour la galerie */
+/* Ajustement pour le thème sombre */
 body.dark-theme .gallery img {
-    border-color: #444;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
 body.dark-theme .gallery img:hover {
-    border-color: #bbb;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-    .gallery img {
-        flex: 1 1 calc(33.33% - 20px);
-        max-width: calc(33.33% - 20px);
-    }
-}
-
-@media (max-width: 768px) {
-    .gallery img {
-        flex: 1 1 calc(50% - 20px);
-        max-width: calc(50% - 20px);
-    }
-}
-
-@media (max-width: 480px) {
-    .gallery img {
-        flex: 1 1 calc(100% - 20px);
-        max-width: calc(100% - 20px);
-    }
-}
-
-/* Modale avec effet fade in/out */
+/*==========================*/
+/*  Modale avec effet fade  */
+/*  & Glassmorphism         */
+/*==========================*/
 .modal {
-    display: none;
-    position: fixed;
-    z-index: 10;
-    padding-top: 60px;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    overflow: auto;
-    background-color: rgba(0,0,0,0);
-    opacity: 0;
-    transition: opacity 0.5s ease, background-color 0.5s ease;
+  display: none;
+  position: fixed;
+  z-index: 10;
+  padding-top: 60px;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0); /* transparent au départ */
+  opacity: 0;
+  transition: opacity var(--transition-slow) cubic-bezier(0.4, 0, 0.2, 1),
+              background-color var(--transition-slow) ease;
 }
 
 .modal.show {
-    display: block;
-    background-color: rgba(0,0,0,0.9);
-    opacity: 1;
+  display: block;
+  background-color: rgba(0, 0, 0, 0.9);
+  opacity: 1;
 }
 
-/* Contenu de la modale */
+/* Contenu de la modale avec glassmorphism */
 .modal-content {
-    margin: auto;
-    display: block;
-    width: 80%;
-    max-width: 700px;
-    transition: transform 0.3s ease, opacity 0.3s ease;
-    transform: scale(0.8);
-    opacity: 0;
-    cursor: zoom-in;
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  border-radius: var(--border-radius);
+  transition: transform var(--transition-fast), opacity var(--transition-fast);
+  transform: scale(0.8);
+  opacity: 0;
+  cursor: zoom-in;
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  padding: var(--padding-base);
 }
 
 .modal.show .modal-content {
-    transform: scale(1);
-    opacity: 1;
+  transform: scale(1);
+  opacity: 1;
 }
 
 .modal-content.zoomed {
-    transform: scale(2);
-    cursor: zoom-out;
+  transform: scale(2);
+  cursor: zoom-out;
 }
 
 /* Bouton de fermeture */
 .close {
-    position: absolute;
-    top: 15px;
-    right: 35px;
-    color: #fff;
-    font-size: 40px;
-    font-weight: bold;
-    transition: color 0.3s ease;
-    cursor: pointer;
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #fff;
+  font-size: 40px;
+  font-weight: bold;
+  transition: color var(--transition-fast);
+  cursor: pointer;
 }
 
 .close:hover,
 .close:focus {
-    color: #bbb;
+  color: #bbb;
 }
 
-/* Bouton Partager avec effets de survol et d'appui */
+/*==========================*/
+/*  Bouton Partager         */
+/*  avec effets modernes     */
+/*==========================*/
 #share-button {
-    display: block;
-    position: relative;
-    margin: 20px auto 0 auto;
-    padding: 10px 20px;
-    background-color: #007BFF;
-    color: #fff;
-    border: none;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s ease, transform 0.2s ease;
-    font-size: 1em;
-    z-index: 11;
+  display: block;
+  position: relative;
+  margin: 20px auto 0;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+  color: #fff;
+  border: none;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow var(--transition-fast);
+  font-size: 1em;
+  z-index: 11;
+  box-shadow: var(--shadow-light);
 }
 
 #share-button:hover {
-    background-color: #0056b3;
-    transform: scale(1.05);
+  transform: scale(1.05);
+  box-shadow: var(--shadow-hover);
 }
 
 #share-button:active {
-    transform: scale(0.95);
+  transform: scale(0.95);
 }
 
 body.dark-theme #share-button {
-    background-color: #1A73E8;
+  background: linear-gradient(135deg, #1A73E8, #1666C1);
 }
 
 body.dark-theme #share-button:hover {
-    background-color: #1666C1;
+  background: linear-gradient(135deg, #1666C1, #1A73E8);
 }
 
-/* Compteurs de vues et de partages */
+/*==========================*/
+/*  Compteurs de vues et    */
+/*  partages                */
+/*==========================*/
 .counters {
-    display: flex;
-    justify-content: center;
-    margin-top: 10px;
-    font-size: 1.2em;
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+  font-size: 1.2em;
 }
 
 #view-count,
 #share-count {
-    margin: 0 10px;
-    padding: 5px 10px;
-    background-color: #fff;
-    border-radius: 5px;
-    border: 1px solid #ccc;
-    transition: background-color 0.3s ease, color 0.3s ease;
+  margin: 0 10px;
+  padding: 5px 10px;
+  background-color: #fff;
+  border-radius: var(--border-radius);
+  border: 1px solid #ccc;
+  transition: background-color var(--transition-fast), color var(--transition-fast);
 }
 
 body.dark-theme #view-count,
 body.dark-theme #share-count {
-    background-color: #333;
-    color: #f0f0f0;
-    border-color: #444;
+  background-color: #333;
+  color: var(--dark-text);
+  border-color: #444;
 }
