@@ -14,13 +14,18 @@ function shuffleArray(array) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+  // Enregistrer l'heure de début si non déjà définie
+  if (!window.splashStart) {
+    window.splashStart = Date.now();
+  }
+
   // Détection de la langue de l'utilisateur
   function detectUserLanguage() {
     const language = navigator.language || navigator.userLanguage;
     return language.startsWith('fr') ? 'fr' : 'en';
   }
 
-  // Traductions pour les éléments statiques
+  // Traductions pour les éléments statiques (incluant le splash screen)
   const translations = {
     en: {
       themeToggleDark: 'Dark Mode',
@@ -31,7 +36,8 @@ document.addEventListener('DOMContentLoaded', function() {
       shareCount: 'Shares: ',
       copied: 'Links copied to clipboard.',
       copyError: 'Unable to copy links.',
-      shareError: 'Sharing not supported on this browser.'
+      shareError: 'Sharing not supported on this browser.',
+      loading: 'Loading...'
     },
     fr: {
       themeToggleDark: 'Mode Sombre',
@@ -42,17 +48,21 @@ document.addEventListener('DOMContentLoaded', function() {
       shareCount: 'Partages : ',
       copied: 'Les liens ont été copiés dans le presse-papiers.',
       copyError: 'Impossible de copier les liens.',
-      shareError: 'Le partage n\'est pas supporté sur ce navigateur.'
+      shareError: 'Le partage n\'est pas supporté sur ce navigateur.',
+      loading: 'Chargement...'
     }
   };
 
-  // Appliquer les traductions aux éléments statiques
+  // Détecter la langue et appliquer les traductions aux éléments statiques
   const userLanguage = detectUserLanguage();
   document.getElementById('theme-toggle').textContent = translations[userLanguage].themeToggleDark;
   document.querySelector('h1').textContent = translations[userLanguage].header;
   document.getElementById('share-button').innerHTML = `<i class="fas fa-share-alt"></i> ${translations[userLanguage].shareButton}`;
   document.getElementById('view-count').textContent = translations[userLanguage].viewCount + '0';
   document.getElementById('share-count').textContent = translations[userLanguage].shareCount + '0';
+
+  // Mettre à jour le texte du splash screen avec la traduction du "loading"
+  document.querySelector('#splash p').textContent = translations[userLanguage].loading;
 
   // Références aux éléments du DOM
   const gallery = document.getElementById('gallery');
@@ -82,7 +92,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Mélanger l'ordre des images de manière aléatoire
   shuffleArray(images);
 
-  // Fonction de sauvegarde des informations dans le localStorage
+  // Fonction de sauvegarde des données dans le localStorage
   function saveImageData() {
     images.forEach((image, index) => {
       const imageKey = `image${index + 1}`;
@@ -240,10 +250,9 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
 
-  // Calculer le temps écoulé depuis le début du splash et s'assurer qu'il dure au moins 10 s
+  // Calculer le temps écoulé depuis le début du splash screen et le garantir pour au moins 10s
   const splashMinimum = 10000; // 10 secondes en millisecondes
   const elapsed = Date.now() - window.splashStart;
   const remaining = Math.max(splashMinimum - elapsed, 0);
   setTimeout(hideSplashScreen, remaining);
 });
-
