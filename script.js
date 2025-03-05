@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Liste des images
     const images = [];
-    const totalImages = 42; // Remplacez par le nombre total de vos images
+    const totalImages = 45; // Remplacez par le nombre total de vos images
 
     for (let i = 1; i <= totalImages; i++) {
         images.push({ src: `image${i}.png`, alt: `Image ${i}` });
