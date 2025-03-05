@@ -175,3 +175,25 @@ body.dark-theme #share-button:hover {
     background-color: #1666C1;
 }
 
+/* Compteurs de vues et de partages */
+.counters {
+    display: flex;
+    justify-content: center;
+    margin-top: 10px;
+    font-size: 1.2em;
+}
+
+#view-count, #share-count {
+    margin: 0 10px;
+    padding: 5px 10px;
+    background-color: #fff;
+    border-radius: 5px;
+    border: 1px solid #ccc;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+body.dark-theme #view-count, body.dark-theme #share-count {
+    background-color: #333;
+    color: #f0f0f0;
+    border-color: #444;
+}
