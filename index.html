@@ -1,47 +1,51 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-    <!-- Métadonnées -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PixPop - Galerie d'Images</title>
-    
-    <!-- Feuille de style CSS -->
-    <link rel="stylesheet" href="style.css">
-    
-    <!-- Icônes Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha384-0XI6GJKUI/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA+Conserve l'intégrité" crossorigin="anonymous">
-    
-    <!-- SDK Telegram Web Apps -->
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PixPop - Galerie d'Images</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" 
+        integrity="sha384-0XI6GJKUI/AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA" 
+        crossorigin="anonymous">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+
+  <!-- Définir le temps de début dès que possible -->
+  <script>
+    window.splashStart = Date.now();
+  </script>
 </head>
 <body>
-    <!-- Bouton de basculement du thème -->
-    <button id="theme-toggle">🌙 Mode Sombre</button>
+  <!-- Splash Screen -->
+  <div id="splash">
+    <div class="pixel-art">PIXPOP</div>
+    <div class="spinner"></div>
+    <p>Chargement...</p>
+  </div>
 
-    <!-- En-tête -->
-    <h1>PixPop - Galerie d'Images</h1>
+  <!-- Bouton de basculement du thème -->
+  <button id="theme-toggle">Mode Sombre</button>
 
-    <!-- Conteneur de la galerie -->
-    <div class="gallery" id="gallery"></div>
+  <!-- En-tête -->
+  <h1>PixPop - Galerie d'Images</h1>
 
-    <!-- Fenêtre modale -->
-<div id="modal" class="modal">
+  <!-- Galerie -->
+  <div class="gallery" id="gallery"></div>
+
+  <!-- Modale -->
+  <div id="modal" class="modal">
     <span class="close">&times;</span>
-    <img class="modal-content" id="modal-img">
+    <img class="modal-content" id="modal-img" alt="">
     <button id="share-button"><i class="fas fa-share-alt"></i> Partager</button>
     <div class="counters">
-        <span id="view-count">Vues : 0</span>
-        <span id="share-count">Partages : 0</span>
+      <span id="view-count">Vues : 0</span>
+      <span id="share-count">Partages : 0</span>
     </div>
-</div>
-    <!-- Script JavaScript -->
-    <script src="script.js"></script>
+  </div>
 
-    <!-- Initialisation du WebApp Telegram -->
-    <script>
-        Telegram.WebApp.ready();
-    </script>
+  <script src="script.js"></script>
 </body>
 </html>
 
