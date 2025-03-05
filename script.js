@@ -8,7 +8,7 @@ function isTelegramWebView() {
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]]; // échange d'éléments
+    [array[i], array[j]] = [array[j], array[i]]; // échange des éléments
   }
   return array;
 }
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return language.startsWith('fr') ? 'fr' : 'en';
   }
 
-  // Traductions pour les éléments statiques et les messages
+  // Traductions pour les éléments statiques
   const translations = {
     en: {
       themeToggleDark: 'Dark Mode',
@@ -54,12 +54,12 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('view-count').textContent = translations[userLanguage].viewCount + '0';
   document.getElementById('share-count').textContent = translations[userLanguage].shareCount + '0';
 
-  // Variables globales
+  // Références aux éléments du DOM
   const gallery = document.getElementById('gallery');
   const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modal-img');
-  const span = document.getElementsByClassName('close')[0];
-  const themeToggle = document.getElementById('theme-toggle');
+  const closeBtn = document.getElementsByClassName('close')[0];
+  const themeToggleBtn = document.getElementById('theme-toggle');
   const shareButton = document.getElementById('share-button');
   const viewCount = document.getElementById('view-count');
   const shareCount = document.getElementById('share-count');
@@ -69,7 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const totalImages = 51;
   const images = [];
 
-  // Charger les informations des images depuis le localStorage ou les initialiser
+  // Charger les données des images depuis le localStorage ou les initialiser
   for (let i = 1; i <= totalImages; i++) {
     const imageKey = `image${i}`;
     const storedImage = localStorage.getItem(imageKey);
@@ -82,7 +82,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Mélanger l'ordre des images de manière aléatoire
   shuffleArray(images);
 
-  // Fonction de sauvegarde des données dans le localStorage
+  // Fonction de sauvegarde des informations dans le localStorage
   function saveImageData() {
     images.forEach((image, index) => {
       const imageKey = `image${index + 1}`;
@@ -90,20 +90,19 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
 
-  // Création de la galerie en parcourant le tableau des images (mélangé)
+  // Création dynamique de la galerie
   images.forEach((image, index) => {
     const imgElement = document.createElement('img');
     imgElement.src = image.src;
     imgElement.alt = image.alt;
-    // Activation du lazy loading
+    // Activer le lazy loading
     imgElement.setAttribute('loading', 'lazy');
 
-    // Au clic, ouvrir la modale et incrémenter le compteur de vues
+    // Au clic, ouvrir la modale et incrémenter les compteurs
     imgElement.addEventListener('click', function() {
       openModal(this.src, index);
       incrementViewCount(index);
-
-      // Précharger l'image suivante si elle existe
+      // Précharger l'image suivante si disponible
       if (index + 1 < images.length) {
         const nextImg = new Image();
         nextImg.src = images[index + 1].src;
@@ -135,8 +134,8 @@ document.addEventListener('DOMContentLoaded', function() {
     modalImg.classList.remove('zoomed');
   }
 
-  // Fermer la modale lors du clic sur la croix ou en dehors du contenu modal
-  span.onclick = closeModal;
+  // Fermer la modale lors du clic sur la croix ou en dehors du contenu
+  closeBtn.onclick = closeModal;
   window.onclick = function(event) {
     if (event.target === modal) {
       closeModal();
@@ -148,24 +147,24 @@ document.addEventListener('DOMContentLoaded', function() {
     modalImg.classList.toggle('zoomed');
   });
 
-  // Basculer le thème (affiche Mode Clair lorsque le thème sombre est actif, et inversement)
-  themeToggle.addEventListener('click', function() {
+  // Basculer le thème clair/sombre
+  themeToggleBtn.addEventListener('click', function() {
     document.body.classList.toggle('dark-theme');
     if (document.body.classList.contains('dark-theme')) {
-      themeToggle.textContent = translations[userLanguage].themeToggleLight;
+      themeToggleBtn.textContent = translations[userLanguage].themeToggleLight;
     } else {
-      themeToggle.textContent = translations[userLanguage].themeToggleDark;
+      themeToggleBtn.textContent = translations[userLanguage].themeToggleDark;
     }
   });
 
   // Gestion du partage
   shareButton.addEventListener('click', function() {
-    const botUsername = 'PixPopBot'; // Remplacez par le nom exact de votre bot
+    const botUsername = 'PixPopBot'; // Remplacez par le nom de votre bot
     const botLink = `https://t.me/${botUsername}`;
     const imageUrl = modalImg.src;
     const shareText = `Découvrez cette image sur PixPop !`;
 
-    // Enregistrer le partage pour l'image actuelle
+    // Enregistrer le partage
     enregistrerPartage(currentImageIndex);
 
     if (isTelegramWebView()) {
@@ -194,7 +193,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 
-  // Enregistrer un partage
+  // Enregistrer le partage d'une image
   function enregistrerPartage(index) {
     images[index].shares++;
     updateShareCount(index);
@@ -217,7 +216,7 @@ document.addEventListener('DOMContentLoaded', function() {
     shareCount.textContent = translations[userLanguage].shareCount + images[index].shares;
   }
 
-  // Enregistrement du Service Worker pour la mise en cache des ressources
+  // Enregistrement du Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('/service-worker.js')
@@ -225,8 +224,26 @@ document.addEventListener('DOMContentLoaded', function() {
           console.log('Service Worker enregistré avec succès, scope :', registration.scope);
         })
         .catch(error => {
-          console.error('Échec de l\'enregistrement du Service Worker :', error);
+          console.error('Échec du Service Worker :', error);
         });
     });
   }
+
+  // Fonction pour masquer le splash screen
+  function hideSplashScreen() {
+    const splash = document.getElementById('splash');
+    if (splash) {
+      splash.classList.add("fade-out");
+      setTimeout(() => {
+        splash.style.display = "none";
+      }, 500);
+    }
+  }
+
+  // Calculer le temps écoulé depuis le début du splash et s'assurer qu'il dure au moins 10 s
+  const splashMinimum = 10000; // 10 secondes en millisecondes
+  const elapsed = Date.now() - window.splashStart;
+  const remaining = Math.max(splashMinimum - elapsed, 0);
+  setTimeout(hideSplashScreen, remaining);
 });
+
