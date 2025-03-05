@@ -5,52 +5,45 @@ function isTelegramWebView() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    // Fonction pour détecter la langue de l'utilisateur
+    // Détection de la langue de l'utilisateur
     function detectUserLanguage() {
         const language = navigator.language || navigator.userLanguage;
-        return language.startsWith('fr') ? 'fr' : 'en'; // Adapté pour détecter le français ou l'anglais
+        return language.startsWith('fr') ? 'fr' : 'en';
     }
 
-    // Traductions pour les différents éléments de l'application
+    // Objets de traductions avec les libellés souhaités pour le basculement du thème
     const translations = {
         en: {
-            themeToggle: '🌙 Dark Mode',
+            themeToggleDark: 'Dark Mode',
+            themeToggleLight: 'Light Mode',
             header: 'PixPop - Image Gallery',
             shareButton: 'Share',
             viewCount: 'Views: ',
             shareCount: 'Shares: ',
-            startSlideshow: 'Start Slideshow',
-            stopSlideshow: 'Stop Slideshow',
             copied: 'Links copied to clipboard.',
             copyError: 'Unable to copy links.',
             shareError: 'Sharing not supported on this browser.'
         },
         fr: {
-            themeToggle: '🌙 Mode Sombre',
+            themeToggleDark: 'Mode Sombre',
+            themeToggleLight: 'Mode Clair',
             header: 'PixPop - Galerie d\'Images',
             shareButton: 'Partager',
             viewCount: 'Vues : ',
             shareCount: 'Partages : ',
-            startSlideshow: 'Démarrer le Diaporama',
-            stopSlideshow: 'Arrêter le Diaporama',
-            copied: 'Les liens de l\'image et du bot ont été copiés dans le presse-papiers.',
+            copied: 'Les liens ont été copiés dans le presse-papiers.',
             copyError: 'Impossible de copier les liens.',
             shareError: 'Le partage n\'est pas supporté sur ce navigateur.'
         }
     };
 
-    // Appliquer les traductions en fonction de la langue détectée
-    function applyTranslations(language) {
-        document.getElementById('theme-toggle').textContent = translations[language].themeToggle;
-        document.querySelector('h1').textContent = translations[language].header;
-        document.getElementById('share-button').innerHTML = `<i class="fas fa-share-alt"></i> ${translations[language].shareButton}`;
-        document.getElementById('view-count').textContent = translations[language].viewCount + '0';
-        document.getElementById('share-count').textContent = translations[language].shareCount + '0';
-    }
-
-    // Détection de la langue de l'utilisateur
+    // Détecter la langue de l'utilisateur et appliquer les traductions sur les éléments statiques
     const userLanguage = detectUserLanguage();
-    applyTranslations(userLanguage);
+    document.getElementById('theme-toggle').textContent = translations[userLanguage].themeToggleDark;
+    document.querySelector('h1').textContent = translations[userLanguage].header;
+    document.getElementById('share-button').innerHTML = `<i class="fas fa-share-alt"></i> ${translations[userLanguage].shareButton}`;
+    document.getElementById('view-count').textContent = translations[userLanguage].viewCount + '0';
+    document.getElementById('share-count').textContent = translations[userLanguage].shareCount + '0';
 
     // Variables globales
     const gallery = document.getElementById('gallery');
@@ -63,19 +56,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const shareCount = document.getElementById('share-count');
     let currentImageIndex = 0;
 
-    // Liste des images
+    // Nombre total d'images (à adapter avec vos ressources)
+    const totalImages = 51;
     const images = [];
-    const totalImages = 51; // Remplacez par le nombre total de vos images
 
-    // Charger les données à partir du stockage local ou initialiser les images
+    // Charger les données à partir du localStorage ou initialiser les informations pour chaque image
     for (let i = 1; i <= totalImages; i++) {
         const imageKey = `image${i}`;
         const storedImage = localStorage.getItem(imageKey);
-        const imageData = storedImage ? JSON.parse(storedImage) : { src: `image${i}.png`, alt: `Image ${i}`, views: 0, shares: 0 };
+        const imageData = storedImage 
+            ? JSON.parse(storedImage) 
+            : { src: `image${i}.png`, alt: `Image ${i}`, views: 0, shares: 0 };
         images.push(imageData);
     }
 
-    // Enregistrer les données dans le stockage local
+    // Fonction de sauvegarde des données d'images dans le localStorage
     function saveImageData() {
         images.forEach((image, index) => {
             const imageKey = `image${index + 1}`;
@@ -85,33 +80,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Création de la galerie
     images.forEach((image, index) => {
-        // Création des images de la galerie
         const imgElement = document.createElement('img');
         imgElement.src = image.src;
         imgElement.alt = image.alt;
+        // Activation du lazy loading
+        imgElement.setAttribute('loading', 'lazy');
 
-        // Événement de clic sur l'image
+        // Au clic, ouvrir la modale et incrémenter le compteur de vues
         imgElement.addEventListener('click', function() {
             openModal(this.src, index);
             incrementViewCount(index);
 
-            // Précharge l'image suivante si elle existe
+            // Précharger l'image suivante si possible
             if (index + 1 < images.length) {
                 const nextImg = new Image();
                 nextImg.src = images[index + 1].src;
             }
         });
 
-        // Gestion des erreurs de chargement
+        // Gérer le cas où l'image ne chargerait pas
         imgElement.onerror = function() {
-            this.src = 'image-placeholder.png'; // Image de remplacement si l'image ne se charge pas
+            this.src = 'image-placeholder.png';
             this.alt = 'Image non disponible';
         };
 
         gallery.appendChild(imgElement);
     });
 
-    // Ouvrir le modal
+    // Fonction pour ouvrir la modale
     function openModal(src, index) {
         modalImg.src = src;
         modal.classList.add('show');
@@ -121,32 +117,32 @@ document.addEventListener('DOMContentLoaded', function() {
         updateShareCount(index);
     }
 
-    // Fermer le modal
+    // Fermer la modale
     function closeModal() {
         modal.classList.remove('show');
         modalImg.classList.remove('zoomed');
     }
 
+    // Gestion de la fermeture (croix ou clic hors modale)
     span.onclick = closeModal;
-
     window.onclick = function(event) {
-        if (event.target == modal) {
+        if (event.target === modal) {
             closeModal();
         }
     };
 
-    // Zoom sur l'image
+    // Permettre le zoom au clic sur l'image de la modale
     modalImg.addEventListener('click', function() {
         modalImg.classList.toggle('zoomed');
     });
 
-    // Basculer le thème
+    // Basculer le thème : si le thème sombre est activé, afficher "Mode Clair", sinon "Mode Sombre"
     themeToggle.addEventListener('click', function() {
         document.body.classList.toggle('dark-theme');
         if (document.body.classList.contains('dark-theme')) {
-            themeToggle.textContent = translations[userLanguage].startSlideshow;
+            themeToggle.textContent = translations[userLanguage].themeToggleLight;
         } else {
-            themeToggle.textContent = translations[userLanguage].stopSlideshow;
+            themeToggle.textContent = translations[userLanguage].themeToggleDark;
         }
     });
 
@@ -154,9 +150,10 @@ document.addEventListener('DOMContentLoaded', function() {
     shareButton.addEventListener('click', function() {
         const botUsername = 'PixPopBot'; // Remplacez par le nom exact de votre bot
         const botLink = `https://t.me/${botUsername}`;
-        const imageUrl = modalImg.src; // URL de l'image cliquée
+        const imageUrl = modalImg.src;
         const shareText = `Découvrez cette image sur PixPop !`;
 
+        // Incrémenter le compteur de partages pour l'image en cours
         enregistrerPartage(currentImageIndex);
 
         if (isTelegramWebView()) {
@@ -173,26 +170,26 @@ document.addEventListener('DOMContentLoaded', function() {
         } else if (navigator.clipboard) {
             const textToCopy = `${shareText}\n${imageUrl}\nRejoignez-nous sur ${botLink}`;
             navigator.clipboard.writeText(textToCopy)
-            .then(() => {
-                alert(translations[userLanguage].copied);
-            })
-            .catch((error) => {
-                alert(translations[userLanguage].copyError);
-                console.error(translations[userLanguage].copyError, error);
-            });
+                .then(() => { 
+                    alert(translations[userLanguage].copied);
+                })
+                .catch((error) => {
+                    alert(translations[userLanguage].copyError);
+                    console.error(translations[userLanguage].copyError, error);
+                });
         } else {
             alert(translations[userLanguage].shareError);
         }
     });
 
-    // Fonction pour enregistrer le partage
+    // Enregistrer un partage pour la photo affichée dans la modale
     function enregistrerPartage(index) {
         images[index].shares++;
         updateShareCount(index);
         saveImageData();
     }
 
-    // Fonction pour incrémenter le compteur de vues
+    // Incrémenter le compteur de vues pour une image
     function incrementViewCount(index) {
         images[index].views++;
         saveImageData();
