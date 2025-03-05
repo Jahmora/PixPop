@@ -27,7 +27,7 @@
 /*  Styles Généraux         */
 /*==========================*/
 body {
-  font-family: Arial, sans-serif;
+  font-family: 'Roboto', sans-serif;
   background-color: var(--light-bg);
   color: var(--light-text);
   margin: 0;
@@ -47,7 +47,7 @@ body.dark-theme {
 }
 
 /*==========================*/
-/*  Bouton de basculement   */
+/*  Bouton de Thème         */
 /*==========================*/
 #theme-toggle {
   position: fixed;
@@ -69,7 +69,7 @@ body.dark-theme #theme-toggle {
 }
 
 /*==========================*/
-/*  Galerie avec CSS Grid   */
+/*  Galerie en CSS Grid     */
 /*==========================*/
 .gallery {
   display: grid;
@@ -92,17 +92,16 @@ body.dark-theme #theme-toggle {
   box-shadow: var(--shadow-hover);
 }
 
-/* Ajustement pour le thème sombre */
 body.dark-theme .gallery img {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
 }
+
 body.dark-theme .gallery img:hover {
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 /*==========================*/
-/*  Modale avec effet fade  */
-/*  & Glassmorphism         */
+/*  Modale & Glassmorphism   */
 /*==========================*/
 .modal {
   display: none;
@@ -114,7 +113,7 @@ body.dark-theme .gallery img:hover {
   width: 100%;
   height: 100%;
   overflow: auto;
-  background-color: rgba(0, 0, 0, 0); /* transparent au départ */
+  background-color: rgba(0, 0, 0, 0);
   opacity: 0;
   transition: opacity var(--transition-slow) cubic-bezier(0.4, 0, 0.2, 1),
               background-color var(--transition-slow) ease;
@@ -126,7 +125,6 @@ body.dark-theme .gallery img:hover {
   opacity: 1;
 }
 
-/* Contenu de la modale avec glassmorphism */
 .modal-content {
   margin: auto;
   display: block;
@@ -153,7 +151,6 @@ body.dark-theme .gallery img:hover {
   cursor: zoom-out;
 }
 
-/* Bouton de fermeture */
 .close {
   position: absolute;
   top: 15px;
@@ -172,7 +169,6 @@ body.dark-theme .gallery img:hover {
 
 /*==========================*/
 /*  Bouton Partager         */
-/*  avec effets modernes     */
 /*==========================*/
 #share-button {
   display: block;
@@ -208,8 +204,7 @@ body.dark-theme #share-button:hover {
 }
 
 /*==========================*/
-/*  Compteurs de vues et    */
-/*  partages                */
+/*  Compteurs (vues/partages)*/
 /*==========================*/
 .counters {
   display: flex;
@@ -234,3 +229,51 @@ body.dark-theme #share-count {
   color: var(--dark-text);
   border-color: #444;
 }
+
+/*==========================*/
+/*  Splash Screen           */
+/*==========================*/
+#splash {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: var(--light-bg);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  transition: opacity 0.5s ease;
+}
+
+#splash.fade-out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* Pixel art pour le titre du Splash */
+.pixel-art {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 48px;
+  letter-spacing: 4px;
+  color: var(--primary-color);
+  margin-bottom: 20px;
+}
+/* Spinner */
+.spinner {
+  border: 8px solid #eee;
+  border-top: 8px solid var(--primary-color);
+  border-radius: 50%;
+  width: 60px;
+  height: 60px;
+  animation: spin 1s linear infinite;
+  margin-bottom: 20px;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
