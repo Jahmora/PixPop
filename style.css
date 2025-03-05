@@ -60,11 +60,10 @@ body.dark-theme #theme-toggle {
     border-color: #333;
 }
 
-/* Styles pour le thème sombre */
+/* Thème sombre pour la galerie */
 body.dark-theme .gallery img {
     border-color: #444;
 }
-
 body.dark-theme .gallery img:hover {
     border-color: #bbb;
 }
@@ -91,7 +90,7 @@ body.dark-theme .gallery img:hover {
     }
 }
 
-/* Modale */
+/* Modale avec effet fade in/out */
 .modal {
     display: none;
     position: fixed;
@@ -103,26 +102,31 @@ body.dark-theme .gallery img:hover {
     height: 100%;
     overflow: auto;
     background-color: rgba(0,0,0,0);
-    transition: background-color 0.5s ease;
+    opacity: 0;
+    transition: opacity 0.5s ease, background-color 0.5s ease;
 }
 
 .modal.show {
     display: block;
     background-color: rgba(0,0,0,0.9);
+    opacity: 1;
 }
 
+/* Contenu de la modale */
 .modal-content {
     margin: auto;
     display: block;
     width: 80%;
     max-width: 700px;
-    transition: transform 0.3s ease;
+    transition: transform 0.3s ease, opacity 0.3s ease;
     transform: scale(0.8);
+    opacity: 0;
     cursor: zoom-in;
 }
 
 .modal.show .modal-content {
     transform: scale(1);
+    opacity: 1;
 }
 
 .modal-content.zoomed {
@@ -147,7 +151,7 @@ body.dark-theme .gallery img:hover {
     color: #bbb;
 }
 
-/* Bouton Partager */
+/* Bouton Partager avec effets de survol et d'appui */
 #share-button {
     display: block;
     position: relative;
@@ -158,13 +162,18 @@ body.dark-theme .gallery img:hover {
     border: none;
     border-radius: 5px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: background-color 0.3s ease, transform 0.2s ease;
     font-size: 1em;
     z-index: 11;
 }
 
 #share-button:hover {
     background-color: #0056b3;
+    transform: scale(1.05);
+}
+
+#share-button:active {
+    transform: scale(0.95);
 }
 
 body.dark-theme #share-button {
@@ -183,7 +192,8 @@ body.dark-theme #share-button:hover {
     font-size: 1.2em;
 }
 
-#view-count, #share-count {
+#view-count,
+#share-count {
     margin: 0 10px;
     padding: 5px 10px;
     background-color: #fff;
@@ -192,7 +202,8 @@ body.dark-theme #share-button:hover {
     transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-body.dark-theme #view-count, body.dark-theme #share-count {
+body.dark-theme #view-count,
+body.dark-theme #share-count {
     background-color: #333;
     color: #f0f0f0;
     border-color: #444;
