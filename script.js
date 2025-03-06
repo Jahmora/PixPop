@@ -4,17 +4,17 @@ function isTelegramWebView() {
   return /Telegram/i.test(userAgent);
 }
 
-// Fonction de mélange (shuffle) du tableau
+// Fonction de mélange (shuffle) d'un tableau
 function shuffleArray(array) {
   for (let i = array.length - 1; i > 0; i--) {
     const j = Math.floor(Math.random() * (i + 1));
-    [array[i], array[j]] = [array[j], array[i]]; // échange des éléments
+    [array[i], array[j]] = [array[j], array[i]];
   }
   return array;
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Vérifier ou enregistrer le temps de début du splash
+  // Vérifier ou enregistrer le temps de début du splash (défini dans l'HTML)
   if (!window.splashStart) {
     window.splashStart = Date.now();
   }
@@ -25,7 +25,7 @@ document.addEventListener('DOMContentLoaded', function() {
     return language.startsWith('fr') ? 'fr' : 'en';
   }
 
-  // Traductions pour les éléments statiques, y compris pour le splash et les thèmes
+  // Traductions pour les éléments statiques
   const translations = {
     en: {
       themeToggleDark: 'Dark Mode',
@@ -38,9 +38,7 @@ document.addEventListener('DOMContentLoaded', function() {
       copyError: 'Unable to copy links.',
       shareError: 'Sharing not supported on this browser.',
       loading: 'Loading...',
-      themes: {
-        all: 'All Themes'
-      }
+      themes: { all: 'All Themes' }  // Non utilisé ici, mais conservé pour cohérence
     },
     fr: {
       themeToggleDark: 'Mode Sombre',
@@ -53,9 +51,7 @@ document.addEventListener('DOMContentLoaded', function() {
       copyError: 'Impossible de copier les liens.',
       shareError: 'Le partage n\'est pas supporté sur ce navigateur.',
       loading: 'Chargement...',
-      themes: {
-        all: 'Tous les thèmes'
-      }
+      themes: { all: 'Tous les thèmes' }
     }
   };
 
@@ -67,6 +63,7 @@ document.addEventListener('DOMContentLoaded', function() {
   document.getElementById('share-button').innerHTML = `<i class="fas fa-share-alt"></i> ${translations[userLanguage].shareButton}`;
   document.getElementById('view-count').textContent = translations[userLanguage].viewCount + '0';
   document.getElementById('share-count').textContent = translations[userLanguage].shareCount + '0';
+  // Mettre à jour le texte du splash screen
   document.querySelector('#splash p').textContent = translations[userLanguage].loading;
 
   // Références aux éléments du DOM
@@ -78,109 +75,37 @@ document.addEventListener('DOMContentLoaded', function() {
   const shareButton = document.getElementById('share-button');
   const viewCount = document.getElementById('view-count');
   const shareCount = document.getElementById('share-count');
-  const voteButton = document.getElementById('vote-button'); // Cet élément est désormais présent dans le HTML.
-  const voteCountLabel = document.getElementById('vote-count'); // Cet élément est présent dans le HTML.
-  const filterSelect = document.getElementById('filter-theme');
+  const commonNameLabel = document.getElementById('common-name'); // Pour afficher le nom commun sous l'image dans la modale
   let currentImageIndex = 0;
 
-  // Nombre total d'images et tableau "images"
+  // Définition des images
   const totalImages = 51;
   const images = [];
-  const defaultThemes = ["nature", "urban", "abstract"]; // au cas où
-
-  // Charger les images depuis le localStorage ou les initialiser
+  // Ici, nous assignons un thème par défaut aléatoire (même si ce thème n'est pas utilisé pour filtrer)
+  const defaultThemes = ["nature", "urban", "abstract"];
+  
   for (let i = 1; i <= totalImages; i++) {
     const imageKey = `image${i}`;
     const storedImage = localStorage.getItem(imageKey);
     const imageData = storedImage
       ? JSON.parse(storedImage)
-      : { 
+      : {
           src: `image${i}.png`,
           alt: `Image ${i}`,
           views: 0,
           shares: 0,
           votes: 0,
-          theme: null  // Le thème sera assigné dynamiquement.
+          // On attribue un thème par défaut (bien que nous ne fassions pas de filtrage)
+          theme: defaultThemes[Math.floor(Math.random() * defaultThemes.length)],
+          // Propriété pour stocker le nom commun généré
+          commonName: null
         };
     images.push(imageData);
   }
-
-  // Mélanger l'ordre des images
+  
   shuffleArray(images);
-
-  // --- Extraction des couleurs dominantes avec ColorThief ---
-  function rgbToHex(r, g, b) {
-    return "#" + [r, g, b].map(x => {
-      let hex = x.toString(16);
-      return (hex.length === 1 ? "0" + hex : hex);
-    }).join("");
-  }
-
-  // Si le protocole est "file:", contournez l'extraction pour éviter des erreurs CORS
-  function assignDynamicTheme(imageData, callback) {
-    if (window.location.protocol === "file:") {
-      imageData.theme = "default";
-      callback();
-      return;
-    }
-    const tempImg = new Image();
-    tempImg.crossOrigin = "Anonymous";
-    tempImg.src = imageData.src;
-    tempImg.onload = function() {
-      try {
-        const colorThief = new ColorThief();
-        const dominantColor = colorThief.getColor(tempImg);
-        imageData.theme = rgbToHex(dominantColor[0], dominantColor[1], dominantColor[2]);
-      } catch (e) {
-        imageData.theme = "default";
-      }
-      callback();
-    };
-    tempImg.onerror = function() {
-      imageData.theme = "default";
-      callback();
-    };
-  }
-
-  const themePromises = images.map(imageData => {
-    return new Promise(resolve => {
-      if (imageData.theme) {
-        resolve();
-      } else {
-        assignDynamicTheme(imageData, resolve);
-      }
-    });
-  });
-
-  Promise.all(themePromises).then(() => {
-    // Récupérer les thèmes disponibles
-    const availableThemes = new Set();
-    images.forEach(img => {
-      if (img.theme) {
-        availableThemes.add(img.theme);
-      }
-    });
-
-    // Peupler dynamiquement le sélecteur de filtre
-    function populateFilterOptions() {
-      filterSelect.innerHTML = '';
-      const optionAll = document.createElement('option');
-      optionAll.value = 'all';
-      optionAll.textContent = translations[userLanguage].themes.all;
-      filterSelect.appendChild(optionAll);
-      availableThemes.forEach(theme => {
-        const option = document.createElement('option');
-        option.value = theme;
-        option.textContent = theme;
-        filterSelect.appendChild(option);
-      });
-    }
-    populateFilterOptions();
-    updateGallery();
-  });
-  // --- Fin extraction des thèmes ---
-
-  // Fonction d'affichage de la galerie depuis un tableau d'images
+  
+  // Fonction d'affichage de la galerie (sans système de vote ou de filtre)
   function displayGallery(imageArray) {
     gallery.innerHTML = '';
     imageArray.forEach((image, index) => {
@@ -203,20 +128,10 @@ document.addEventListener('DOMContentLoaded', function() {
       gallery.appendChild(imgElement);
     });
   }
-
-  // Mise à jour de la galerie filtrée par thème et triée par votes décroissants
-  function updateGallery() {
-    let filteredImages = images;
-    const selectedTheme = filterSelect.value;
-    if (selectedTheme !== 'all') {
-      filteredImages = images.filter(img => img.theme === selectedTheme);
-    }
-    filteredImages.sort((a, b) => b.votes - a.votes);
-    displayGallery(filteredImages);
-  }
-
-  filterSelect.addEventListener('change', updateGallery);
-
+  
+  // Affichage initial de la galerie
+  displayGallery(images);
+  
   // Fonctions de la modale
   function openModal(src, index) {
     modalImg.src = src;
@@ -225,28 +140,48 @@ document.addEventListener('DOMContentLoaded', function() {
     currentImageIndex = index;
     updateViewCount(index);
     updateShareCount(index);
-    updateVoteCount(index);
-    // Effet glitch optionnel
+    
+    // Extraction de la signature et génération du nom commun
+    // Si le nom a déjà été généré, on l'affiche directement.
+    if (images[index].commonName) {
+      commonNameLabel.textContent = images[index].commonName;
+    } else {
+      // Utilise la fonction getImageSignature et generateCommonName définies dans imageSignature.js
+      getImageSignature(images[index].src, function(hash) {
+        let commonName;
+        if (hash) {
+          commonName = generateCommonName(hash);
+        } else {
+          commonName = "Unnamed";
+        }
+        images[index].commonName = commonName;
+        commonNameLabel.textContent = commonName;
+      });
+    }
+    
+    // Effet glitch optionnel (pour rappeler l'esthétique pixel art)
     modalImg.classList.add('glitch');
-    setTimeout(() => { modalImg.classList.remove('glitch'); }, 500);
+    setTimeout(() => {
+      modalImg.classList.remove('glitch');
+    }, 500);
   }
-
+  
   function closeModal() {
     modal.classList.remove('show');
     modalImg.classList.remove('zoomed');
   }
-
+  
   closeBtn.onclick = closeModal;
   window.onclick = function(event) {
     if (event.target === modal) {
       closeModal();
     }
   };
-
+  
   modalImg.addEventListener('click', function() {
     modalImg.classList.toggle('zoomed');
   });
-
+  
   // Basculer le thème clair/sombre
   themeToggleBtn.addEventListener('click', function() {
     document.body.classList.toggle('dark-theme');
@@ -256,14 +191,18 @@ document.addEventListener('DOMContentLoaded', function() {
       themeToggleBtn.textContent = translations[userLanguage].themeToggleDark;
     }
   });
-
+  
   // Gestion du partage
   shareButton.addEventListener('click', function() {
     const botUsername = 'PixPopBot';
     const botLink = `https://t.me/${botUsername}`;
     const imageUrl = modalImg.src;
     const shareText = `Découvrez cette image sur PixPop !`;
-    enregistrerPartage(currentImageIndex);
+    // Incrémenter le compteur de partages
+    images[currentImageIndex].shares++;
+    updateShareCount(currentImageIndex);
+    saveImageData();
+    
     if (isTelegramWebView()) {
       const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(imageUrl)}&text=${encodeURIComponent(shareText)}%0ARejoignez-nous sur ${botLink}`;
       window.open(shareUrl, '_blank');
@@ -287,46 +226,29 @@ document.addEventListener('DOMContentLoaded', function() {
       alert(translations[userLanguage].shareError);
     }
   });
-
-  // Gestion du vote
-  voteButton.addEventListener('click', function() {
-    images[currentImageIndex].votes++;
-    updateVoteCount(currentImageIndex);
-    saveImageData();
-    updateGallery();
-  });
-
-  function updateVoteCount(index) {
-    voteCountLabel.textContent = 'Votes : ' + images[index].votes;
-  }
-
-  function enregistrerPartage(index) {
-    images[index].shares++;
-    updateShareCount(index);
-    saveImageData();
-  }
-
+  
+  // Gestion des compteurs
   function incrementViewCount(index) {
     images[index].views++;
     saveImageData();
   }
-
+  
   function updateViewCount(index) {
     viewCount.textContent = translations[userLanguage].viewCount + images[index].views;
   }
-
+  
   function updateShareCount(index) {
     shareCount.textContent = translations[userLanguage].shareCount + images[index].shares;
   }
-
+  
   function saveImageData() {
     images.forEach((image, index) => {
       const imageKey = `image${index + 1}`;
       localStorage.setItem(imageKey, JSON.stringify(image));
     });
   }
-
-  // Enregistrement du Service Worker pour la mise en cache
+  
+  // Enregistrement du Service Worker (à tester sur un serveur HTTP)
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('/service-worker.js')
@@ -338,8 +260,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
   }
-
-  // Fonction pour masquer le splash screen après au moins 10 s
+  
+  // Gestion du splash screen : il doit rester affiché au moins 10 secondes
   function hideSplashScreen() {
     const splash = document.getElementById('splash');
     if (splash) {
@@ -347,8 +269,8 @@ document.addEventListener('DOMContentLoaded', function() {
       setTimeout(() => { splash.style.display = "none"; }, 500);
     }
   }
-
-  const splashMinimum = 10000; // 10 secondes en millisecondes
+  
+  const splashMinimum = 10000; // 10 secondes en ms
   const elapsed = Date.now() - window.splashStart;
   const remaining = Math.max(splashMinimum - elapsed, 0);
   setTimeout(hideSplashScreen, remaining);
