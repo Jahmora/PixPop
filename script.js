@@ -260,7 +260,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // Enregistrement du Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
-      navigator.serviceWorker.register('/service-worker.js')
+      navigator.serviceWorker.register('/PixPop/service-worker.js')
         .then(registration => {
           console.log('Service Worker enregistré avec succès, scope :', registration.scope);
         })
