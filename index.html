@@ -5,13 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>PixPop - Galerie d'Images</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Font Awesome sans integrity pour éviter le problème d'intégrité -->
+  <!-- Font Awesome (sans attribut integrity pour éviter des problèmes) -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" crossorigin="anonymous">
-  <!-- Google Fonts : Press Start 2P pour le pixel art -->
+  <!-- Google Fonts : Press Start 2P pour le style pixel art -->
   <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
-  <!-- Inclure ColorThief -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/color-thief/2.3.2/color-thief.umd.js"></script>
-  <!-- Enregistrer le temps de début du splash dès que possible -->
+  <!-- Inclure SparkMD5 pour calculer le hash -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/spark-md5/3.0.2/spark-md5.min.js"></script>
+  <!-- Inclure imageSignature.js qui gère l'extraction du hash et la conversion en nom commun -->
+  <script src="imageSignature.js"></script>
+  <!-- Définir le temps de début du splash dès que possible -->
   <script>
     window.splashStart = Date.now();
   </script>
@@ -30,14 +32,6 @@
   <!-- En-tête -->
   <h1>PixPop - Galerie d'Images</h1>
 
-  <!-- Barre de filtrage -->
-  <div id="filter-bar">
-    <label for="filter-theme">Filtrer par thème : </label>
-    <select id="filter-theme">
-      <!-- Les options seront générées dynamiquement -->
-    </select>
-  </div>
-
   <!-- Galerie -->
   <div class="gallery" id="gallery"></div>
 
@@ -45,13 +39,13 @@
   <div id="modal" class="modal">
     <span class="close">&times;</span>
     <img class="modal-content" id="modal-img" alt="">
+    <!-- Nouveau paragraphe pour afficher le nom commun généré -->
+    <p id="common-name"></p>
     <button id="share-button"><i class="fas fa-share-alt"></i> Partager</button>
     <div class="counters">
       <span id="view-count">Vues : 0</span>
       <span id="share-count">Partages : 0</span>
-      <span id="vote-count">Votes : 0</span>
     </div>
-    <button id="vote-button">Voter</button>
   </div>
 
   <script src="script.js"></script>
