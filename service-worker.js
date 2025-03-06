@@ -5,7 +5,7 @@ const CACHE_NAME = 'pixpop-cache-v1';
 const urlsToCache = [
   '/',                 // La racine (index.html)
   '/index.html',
-  '/styles.css',
+  '/style.css',
   '/script.js',
   '/image-placeholder.png'
   // Vous pouvez ajouter d'autres fichiers statiques critiques ici.
