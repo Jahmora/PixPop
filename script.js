@@ -1,4 +1,4 @@
-// Fonction pour détecter si l'application est ouverte dans le navigateur Telegram
+// Fonction pour détecter si l'application est ouverte dans Telegram
 function isTelegramWebView() {
   const userAgent = navigator.userAgent || navigator.vendor || window.opera;
   return /Telegram/i.test(userAgent);
@@ -14,12 +14,10 @@ function shuffleArray(array) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-  // Vérifier ou enregistrer le temps de début du splash (défini dans l'HTML)
   if (!window.splashStart) {
     window.splashStart = Date.now();
   }
 
-  // Détection de la langue de l'utilisateur
   function detectUserLanguage() {
     const language = navigator.language || navigator.userLanguage;
     return language.startsWith('fr') ? 'fr' : 'en';
@@ -37,8 +35,7 @@ document.addEventListener('DOMContentLoaded', function() {
       copied: 'Links copied to clipboard.',
       copyError: 'Unable to copy links.',
       shareError: 'Sharing not supported on this browser.',
-      loading: 'Loading...',
-      themes: { all: 'All Themes' }  // Non utilisé ici, mais conservé pour cohérence
+      loading: 'Loading...'
     },
     fr: {
       themeToggleDark: 'Mode Sombre',
@@ -50,23 +47,22 @@ document.addEventListener('DOMContentLoaded', function() {
       copied: 'Les liens ont été copiés dans le presse-papiers.',
       copyError: 'Impossible de copier les liens.',
       shareError: 'Le partage n\'est pas supporté sur ce navigateur.',
-      loading: 'Chargement...',
-      themes: { all: 'Tous les thèmes' }
+      loading: 'Chargement...'
     }
   };
 
   const userLanguage = detectUserLanguage();
 
-  // Appliquer les traductions aux éléments statiques
+  // Appliquer les traductions
   document.getElementById('theme-toggle').textContent = translations[userLanguage].themeToggleDark;
   document.querySelector('h1').textContent = translations[userLanguage].header;
-  document.getElementById('share-button').innerHTML = `<i class="fas fa-share-alt"></i> ${translations[userLanguage].shareButton}`;
+  document.getElementById('share-button').innerHTML =
+    `<i class="fas fa-share-alt"></i> ${translations[userLanguage].shareButton}`;
   document.getElementById('view-count').textContent = translations[userLanguage].viewCount + '0';
   document.getElementById('share-count').textContent = translations[userLanguage].shareCount + '0';
-  // Mettre à jour le texte du splash screen
   document.querySelector('#splash p').textContent = translations[userLanguage].loading;
-
-  // Références aux éléments du DOM
+  
+  // Références au DOM
   const gallery = document.getElementById('gallery');
   const modal = document.getElementById('modal');
   const modalImg = document.getElementById('modal-img');
@@ -75,13 +71,13 @@ document.addEventListener('DOMContentLoaded', function() {
   const shareButton = document.getElementById('share-button');
   const viewCount = document.getElementById('view-count');
   const shareCount = document.getElementById('share-count');
-  const commonNameLabel = document.getElementById('common-name'); // Pour afficher le nom commun sous l'image dans la modale
+  const commonNameLabel = document.getElementById('common-name'); // Pour afficher le nom commun
   let currentImageIndex = 0;
-
-  // Définition des images
+  
+  // Tableau d'images
   const totalImages = 51;
   const images = [];
-  // Ici, nous assignons un thème par défaut aléatoire (même si ce thème n'est pas utilisé pour filtrer)
+  // Ici, on affecte directement un thème par défaut (mais nous utiliserons le hash pour générer le nom)
   const defaultThemes = ["nature", "urban", "abstract"];
   
   for (let i = 1; i <= totalImages; i++) {
@@ -89,23 +85,21 @@ document.addEventListener('DOMContentLoaded', function() {
     const storedImage = localStorage.getItem(imageKey);
     const imageData = storedImage
       ? JSON.parse(storedImage)
-      : {
+      : { 
           src: `image${i}.png`,
           alt: `Image ${i}`,
           views: 0,
           shares: 0,
-          votes: 0,
-          // On attribue un thème par défaut (bien que nous ne fassions pas de filtrage)
+          // On affecte un thème par défaut pour simplifier
           theme: defaultThemes[Math.floor(Math.random() * defaultThemes.length)],
-          // Propriété pour stocker le nom commun généré
-          commonName: null
+          commonName: null // Le nom sera déterminé via le hash
         };
     images.push(imageData);
   }
   
   shuffleArray(images);
   
-  // Fonction d'affichage de la galerie (sans système de vote ou de filtre)
+  // Fonction d'affichage de la galerie
   function displayGallery(imageArray) {
     gallery.innerHTML = '';
     imageArray.forEach((image, index) => {
@@ -132,7 +126,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Affichage initial de la galerie
   displayGallery(images);
   
-  // Fonctions de la modale
+  // Ensemble pour retenir les noms déjà utilisés
+  const usedNames = new Set();
+  
+  // Fonction d'ouverture de la modale
   function openModal(src, index) {
     modalImg.src = src;
     modal.classList.add('show');
@@ -141,29 +138,51 @@ document.addEventListener('DOMContentLoaded', function() {
     updateViewCount(index);
     updateShareCount(index);
     
-    // Extraction de la signature et génération du nom commun
-    // Si le nom a déjà été généré, on l'affiche directement.
+    // Vérifier si le nom commun a déjà été généré
     if (images[index].commonName) {
       commonNameLabel.textContent = images[index].commonName;
     } else {
-      // Utilise la fonction getImageSignature et generateCommonName définies dans imageSignature.js
-      getImageSignature(images[index].src, function(hash) {
-        let commonName;
-        if (hash) {
-          commonName = generateCommonName(hash);
-        } else {
-          commonName = "Unnamed";
-        }
-        images[index].commonName = commonName;
-        commonNameLabel.textContent = commonName;
-      });
+      // Si nous sommes sous Telegram, on peut demander à l'utilisateur de cliquer pour générer le nom final.
+      if (isTelegramWebView()) {
+        // Affichage d'un message ou d'un bouton pour lancer la génération
+        commonNameLabel.textContent = "Appuyez pour générer le nom";
+        modalImg.addEventListener('click', function generateNameOnClick() {
+          // Supprimer cet écouteur pour éviter les re-générations multiples
+          modalImg.removeEventListener('click', generateNameOnClick);
+          // Appeler la fonction d'extraction
+          getImageSignature(images[index].src, function(hash) {
+            let commonName;
+            if (hash) {
+              commonName = generateUniqueCommonName(hash, usedNames);
+            } else {
+              commonName = "Unnamed";
+            }
+            images[index].commonName = commonName;
+            commonNameLabel.textContent = commonName;
+            // Optionnel : envoyer une notification push indiquant le nom final
+            notifyFinalName(commonName);
+          });
+        });
+      } else {
+        // Dans d'autres environnements, générer automatiquement le nom
+        getImageSignature(images[index].src, function(hash) {
+          let commonName;
+          if (hash) {
+            commonName = generateUniqueCommonName(hash, usedNames);
+          } else {
+            commonName = "Unnamed";
+          }
+          images[index].commonName = commonName;
+          commonNameLabel.textContent = commonName;
+          // Optionnel : notification push
+          notifyFinalName(commonName);
+        });
+      }
     }
     
-    // Effet glitch optionnel (pour rappeler l'esthétique pixel art)
+    // Optionnel : effet glitch pour l'esthétique pixel art
     modalImg.classList.add('glitch');
-    setTimeout(() => {
-      modalImg.classList.remove('glitch');
-    }, 500);
+    setTimeout(() => { modalImg.classList.remove('glitch'); }, 500);
   }
   
   function closeModal() {
@@ -202,7 +221,6 @@ document.addEventListener('DOMContentLoaded', function() {
     images[currentImageIndex].shares++;
     updateShareCount(currentImageIndex);
     saveImageData();
-    
     if (isTelegramWebView()) {
       const shareUrl = `https://t.me/share/url?url=${encodeURIComponent(imageUrl)}&text=${encodeURIComponent(shareText)}%0ARejoignez-nous sur ${botLink}`;
       window.open(shareUrl, '_blank');
@@ -248,7 +266,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Enregistrement du Service Worker (à tester sur un serveur HTTP)
+  // Enregistrement du Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', function() {
       navigator.serviceWorker.register('/service-worker.js')
@@ -261,7 +279,7 @@ document.addEventListener('DOMContentLoaded', function() {
     });
   }
   
-  // Gestion du splash screen : il doit rester affiché au moins 10 secondes
+  // Masquer le splash screen après au moins 10 secondes
   function hideSplashScreen() {
     const splash = document.getElementById('splash');
     if (splash) {
@@ -270,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  const splashMinimum = 10000; // 10 secondes en ms
+  const splashMinimum = 10000; 
   const elapsed = Date.now() - window.splashStart;
   const remaining = Math.max(splashMinimum - elapsed, 0);
   setTimeout(hideSplashScreen, remaining);
